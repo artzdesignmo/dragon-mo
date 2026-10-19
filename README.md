@@ -2,7 +2,7 @@
 
 Pure mathematical formula animation. No images, no sprites, no libraries — only `sin` and `cos`.
 
-## 14 modes
+## 17 modes
 
 | Mode | Formula |
 |------|---------|
@@ -10,6 +10,7 @@ Pure mathematical formula animation. No images, no sprites, no libraries — onl
 | 🐟 **Fish** | `wiggle=sin(7u−5t)·46u²` — tail swings, tapered body |
 | 🌸 **Flower** | Rhodonea rose `r=(cos(3θ+t/2.5)·.5+.5)·230·(1+.12·sin(1.5t))` — breathing petals |
 | 🔤 **Letters** | 5×5 vector font bitmasks on a sine sea |
+| 🔡 **Letters-S** | Second customizable text mode, same 5×5 grain effect |
 | 🦋 **Butterfly** | Flapping wings `flap=sin(3t)·.4+.6` |
 | 💗 **Heart** | `x=16·sin³θ`, `y=13cosθ−5cos2θ−2cos3θ−cos4θ` — beating |
 | 🌀 **Spiral** | `θ=i/N·12π+t`, `r=θ·8` |
