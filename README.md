@@ -1,15 +1,25 @@
 # Dragon Mo 🐉
 
-Pure mathematical formula animation. No images, no sprites, no libraries — only `sin` and `cos`. Each animation core is small enough to fit on a napkin.
+Pure mathematical formula animation. No images, no sprites, no libraries — only `sin` and `cos`.
 
-## Four modes
+## 14 modes
 
 | Mode | Formula |
 |------|---------|
-| 🐉 **Dragon** | Adapted parametric point field: `k=9·cos(x/8)`, `d=(k²+e²)/99+sin(t)/6+.5`, `q=99−e·sin(atan2(k,e)·7)/d+k·(3+cos(d²−t)·2)` → swirling dragon |
-| 🐟 **Fish** | Parametric body: `wiggle=sin(7u−5t)·46u²` (tail swings), `width=58·sin(πu)·(1−.55u)` (tapered body) |
-| 🌸 **Flower** | Rhodonea rose: `r=(cos(3θ+t/2.5)·.5+.5)·230·(1+.12·sin(1.5t))` — breathing petals |
-| 🔤 **Letters** | 5×5 vector font as bitmasks, particles floating on a sine sea: `x+sin(2t)·10`, `y+cos(1.6t)·10` |
+| 🐉 **Dragon** | `k=9·cos(x/8)`, `d=(k²+e²)/99+sin(t)/6+.5` — swirling dragon point field |
+| 🐟 **Fish** | `wiggle=sin(7u−5t)·46u²` — tail swings, tapered body |
+| 🌸 **Flower** | Rhodonea rose `r=(cos(3θ+t/2.5)·.5+.5)·230·(1+.12·sin(1.5t))` — breathing petals |
+| 🔤 **Letters** | 5×5 vector font bitmasks on a sine sea |
+| 🦋 **Butterfly** | Flapping wings `flap=sin(3t)·.4+.6` |
+| 💗 **Heart** | `x=16·sin³θ`, `y=13cosθ−5cos2θ−2cos3θ−cos4θ` — beating |
+| 🌀 **Spiral** | `θ=i/N·12π+t`, `r=θ·8` |
+| 🌊 **Wave** | Interfering sine field `y=sin(c·.15+3t)·40+cos(r·.2+2t)·30` |
+| ⭐ **Star** | 5-point star, inner radius morphs with `sin(.8t)` |
+| 🌌 **Galaxy** | 3 rotating spiral arms |
+| 🪢 **Knot** | Torus knot p=2, q=3 |
+| 🪶 **Feather** | Shaft sway + barbs `sin(uπ)·80` |
+| 🐚 **Shell** | Archimedean spiral `r=12θ` with chamber ripple |
+| 🐦 **Bird** | Flapping wings `flap=sin(4t)·60` |
 
 ## Controls
 
