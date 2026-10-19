@@ -214,20 +214,35 @@ let ptx=CX,pty=CY,pvx=0,pvy=0,pSeen=false,lx=null;
 function updatePtr(e){
  const r=cv.getBoundingClientRect();
  const x=(e.clientX-r.left)/r.width*W, y=(e.clientY-r.top)/r.height*H;
- if(pSeen){pvx=pvx*.65+(x-ptx)*.35; pvy=pvy*.65+(y-pty)*.35;}
+ if(pSeen){pvx=pvx*.6+(x-ptx)*.4; pvy=pvy*.6+(y-pty)*.4;}
  ptx=x;pty=y;pSeen=true;
+ PTR_TRAIL.unshift([x,y]);if(PTR_TRAIL.length>14)PTR_TRAIL.pop();
  if(lx!==null)t+=(x-lx)*.002; lx=x;
 }
 cv.addEventListener("pointerdown",e=>{updatePtr(e);cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);});
 cv.addEventListener("pointermove",updatePtr);
 window.addEventListener("pointerup",()=>{lx=null;});
-// 每粒粒子受 pointer 牽引：跟住手指軌跡
+// 每粒粒子受 pointer 牽引：跟住滑鼠軌跡（唔使撳，郁就跟）
+const PTR_TRAIL=[];
 function attract(x,y){
  if(!pSeen)return[x,y];
- const R=150,dx=ptx-x,dy=pty-y,d2=dx*dx+dy*dy;
- if(d2>R*R)return[x,y];
- const d=Math.sqrt(d2)||1,f=1-d/R;
- return[x+dx/d*f*70+pvx*f*4, y+dy/d*f*70+pvy*f*4];
+ // 主力：跟住而家個 pointer 位
+ const R=230,dx=ptx-x,dy=pty-y,d2=dx*dx+dy*dy;
+ let nx=x,ny=y;
+ if(d2<R*R){
+  const d=Math.sqrt(d2)||1,f=1-d/R,ff=f*f;
+  nx+=dx/d*ff*160+pvx*ff*10;
+  ny+=dy/d*ff*160+pvy*ff*10;
+ }
+ // 副力：跟住最近條軌跡（trail），拖出彗尾
+ for(let k=0;k<PTR_TRAIL.length;k+=2){
+  const tp=PTR_TRAIL[k],tdx=tp[0]-nx,tdy=tp[1]-ny,td2=tdx*tdx+tdy*tdy,TR=90;
+  if(td2<TR*TR){
+   const d=Math.sqrt(td2)||1,f=(1-d/TR)*.35*(1-k/PTR_TRAIL.length);
+   nx+=tdx/d*f*60;ny+=tdy/d*f*60;
+  }
+ }
+ return[nx,ny];
 }
 </script>
 </body>
