@@ -105,10 +105,12 @@ document.getElementById("burger").onclick=()=>document.body.classList.toggle("me
 const TAU=Math.PI*2,sin=Math.sin,cos=Math.cos;
 let W=800,H=520,CX=W/2,CY=H/2,SC=1; // SC = scale factor for fullscreen
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+// trail 專用 offscreen canvas：用 destination-out 衰減 alpha，唔會有 8-bit 殘留
+const tc=document.createElement("canvas"),tctx=tc.getContext("2d");
 function resize(){
  W=window.innerWidth;H=window.innerHeight;CX=W/2;CY=H/2;
  SC=Math.min(W/800,H/520);
- cv.width=W;cv.height=H;
+ cv.width=W;cv.height=H;tc.width=W;tc.height=H;
  applyBg();
 }
 window.addEventListener("resize",resize);
@@ -230,24 +232,33 @@ function frame(now){
  // 自動移動：drift 0=唔郁，越大越快隨機漂
  const dox=drift>0?(sin(t*.23)+sin(t*.11+1.7)*.6)*drift*2.2:0;
  const doy=drift>0?(cos(t*.19+.5)+sin(t*.07+3.1)*.6)*drift*2.2:0;
- ctx.fillStyle=`rgba(${BGS[bgI][3]},${trail/100})`;ctx.fillRect(0,0,W,H); // v6 letters 式殘影
+ // 1. trail canvas 衰減（destination-out → 透明，無 8-bit 殘留）
+ tctx.globalCompositeOperation="destination-out";
+ tctx.fillStyle=`rgba(0,0,0,${trail/100})`;
+ tctx.fillRect(0,0,W,H);
+ tctx.globalCompositeOperation="source-over";
+ // 2. 新粒子畫入 trail canvas（全統一 letters 顆粒）
  const gs=2.4*SC, pc=BGS[bgI][2];
- ctx.fillStyle=`rgba(${pc},.92)`; // 全統一 letters 顆粒
+ tctx.fillStyle=`rgba(${pc},.92)`;
  if(mode==="letters"){
   for(const[x0,y0]of letterPts((document.getElementById("wordInput").value||"DRAGON").slice(0,8),t)){
-   const[x,y]=attract(x0,y0);ctx.fillRect(x+dox,y+doy,gs,gs);}
-  pvx*=.94;pvy*=.94;return;
- }
- const M=MODES.find(m=>m.id===mode);
- const pts=M.gen?M.gen(N,t):null;
- for(let i=0;i<N;i++){
-  let x,y;
-  if(M.gen){[x,y]=M.pt(pts[i][0],pts[i][1],t);}
-  else[x,y]=M.pt(i,N,t);
-  [x,y]=attract(x,y);
-  ctx.fillRect(x+dox,y+doy,gs,gs);
+   const[x,y]=attract(x0,y0);tctx.fillRect(x+dox,y+doy,gs,gs);}
+ }else{
+  const M=MODES.find(m=>m.id===mode);
+  const pts=M.gen?M.gen(N,t):null;
+  for(let i=0;i<N;i++){
+   let x,y;
+   if(M.gen){[x,y]=M.pt(pts[i][0],pts[i][1],t);}
+   else[x,y]=M.pt(i,N,t);
+   [x,y]=attract(x,y);
+   tctx.fillRect(x+dox,y+doy,gs,gs);
+  }
  }
  pvx*=.94;pvy*=.94;
+ // 3. 合成：實色底 + trail（背景永遠乾淨）
+ ctx.fillStyle=BGS[bgI][1];
+ ctx.fillRect(0,0,W,H);
+ ctx.drawImage(tc,0,0);
 }
 applyLang();requestAnimationFrame(frame);
 </script>
