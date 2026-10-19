@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dragon Mo — Pure Math Animation</title>
+<meta name="description" content="Animations created purely from mathematical formulas. Only sin and cos — code small enough to fit on a napkin.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e6e6e6;--ink:#111;--muted:#8a867e;--line:rgba(0,0,0,.14);--card:#fff}
+html[data-theme="white"]{--bg:#fff;--ink:#111;--muted:#8a867e;--line:rgba(0,0,0,.14);--card:#fff}
+html[data-theme="black"]{--bg:#111;--ink:#f5f5f5;--muted:#8a867e;--line:rgba(255,255,255,.16);--card:#1a1a1a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Geist,"Noto Sans TC",system-ui,sans-serif;transition:background .3s,color .3s}
+.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+h1{font-size:clamp(28px,6vw,52px);margin:0;letter-spacing:.02em}
+.sub{color:var(--muted);font-size:14px;margin:6px 0 20px}
+.topbtns{display:flex;gap:8px}
+.tbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-size:13px;font-weight:600}
+.tbtn:hover{border-color:var(--ink)}
+.modes{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.mode{padding:10px 22px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+.mode.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stage{position:relative;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0a0a0a}
+canvas{display:block;width:100%;height:auto;touch-action:none}
+.formula{margin-top:14px;padding:14px 18px;border:1px dashed var(--line);border-radius:12px;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.7;color:var(--muted);white-space:pre-wrap;word-break:break-all}
+.formula b{color:var(--ink)}
+.controls{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.cbtn{padding:9px 20px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:13px;font-weight:600}
+input[type=text]{padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:13px;width:180px;outline:none}
+input[type=range]{accent-color:var(--ink)}
+.lbl{font-size:12px;color:var(--muted)}
+footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+footer a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="display" style="font-size:15px">OPENX</div>
+    <div class="topbtns">
+      <button class="tbtn" id="langBtn" title="語言">EN</button>
+      <button class="tbtn" id="themeBtn" title="主題">◐</button>
+    </div>
+  </header>
+  <h1 class="display" data-i18n="title">Dragon Mo</h1>
+  <p class="sub" data-i18n="sub">純數學公式動畫 — 只用 sin 同 cos，code 細到寫得落一張餐巾紙</p>
+  <div class="modes">
+    <button class="mode active" data-mode="dragon">🐉 <span data-i18n="dragon">龍</span></button>
+    <button class="mode" data-mode="fish">🐟 <span data-i18n="fish">魚</span></button>
+    <button class="mode" data-mode="flower">🌸 <span data-i18n="flower">花</span></button>
+    <button class="mode" data-mode="letters">🔤 <span data-i18n="letters">字母</span></button>
+  </div>
+  <div class="stage"><canvas id="cv" width="800" height="520"></canvas></div>
+  <div class="formula" id="formula"></div>
+  <div class="controls">
+    <button class="cbtn" id="playBtn">⏸ <span data-i18n="pause">暫停</span></button>
+    <span class="lbl" data-i18n="speed">速度</span>
+    <input type="range" id="speed" min="1" max="40" value="12" style="width:120px">
+    <span class="lbl" data-i18n="trail">殘影</span>
+    <input type="range" id="trail" min="2" max="60" value="18" style="width:120px">
+    <input type="text" id="wordInput" maxlength="8" value="DRAGON" placeholder="Type word…" style="display:none">
+  </div>
+  <footer>
+    <span>artzdesignmo / dragon-mo — MIT</span>
+    <span><a href="https://openx-mo.vercel.app">openx-mo</a> · <a href="https://github.com/artzdesignmo/dragon-mo">GitHub</a></span>
+  </footer>
+</div>
+<script>
+"use strict";
+// ============ i18n ============
+const STR={
+ en:{title:"Dragon Mo",sub:"Pure math-formula animation — only sin & cos, code small enough for a napkin",
+  dragon:"Dragon",fish:"Fish",flower:"Flower",letters:"Letters",pause:"Pause",play:"Play",speed:"Speed",trail:"Trail"},
+ zh:{title:"Dragon Mo",sub:"純數學公式動畫 — 只用 sin 同 cos，code 細到寫得落一張餐巾紙",
+  dragon:"龍",fish:"魚",flower:"花",letters:"字母",pause:"暫停",play:"播放",speed:"速度",trail:"殘影"}
+};
+let lang=localStorage.getItem("dragonmo-lang")||"en";
+function applyLang(){document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(STR[lang][k])el.textContent=STR[lang][k];});
+ document.getElementById("langBtn").textContent=lang==="en"?"中":"EN";
+ document.getElementById("playBtn").querySelector("span").textContent=playing?STR[lang].pause:STR[lang].play;}
+// ============ theme ============
+let theme=localStorage.getItem("dragonmo-theme")||"light";
+function applyTheme(){document.documentElement.dataset.theme=theme;}
+document.getElementById("themeBtn").onclick=()=>{theme=theme==="light"?"white":theme==="white"?"black":"light";localStorage.setItem("dragonmo-theme",theme);applyTheme();};
+document.getElementById("langBtn").onclick=()=>{lang=lang==="en"?"zh":"en";localStorage.setItem("dragonmo-lang",lang);applyLang();};
+// ============ math core — the napkin ============
+const TAU=Math.PI*2, sin=Math.sin, cos=Math.cos;
+const W=800,H=520,CX=W/2,CY=H/2;
+// --- 龍 dragon (adapted from user's reference) ---
+function dragonPt(x,y,t){
+  const k=9*cos(x/8), e=y/8-12.5;
+  const d=(k*k+e*e)/99+sin(t)/6+.5;
+  const q=99-e*sin(Math.atan2(k,e)*7)/d+k*(3+cos(d*d-t)*2);
+  const c=d/2+e/69-t/16;
+  return [CX-200+q*sin(c)*1.6, CY-160+(q+19*d)*cos(c)*1.1];
+}
+// --- 魚 fish : parametric body + sine swim ---
+function fishPt(i,N,t){
+  const u=i/N;                       // 0..1 along body
+  const L=340;                       // body length
+  const bx=(u-.5)*L;                 // body x
+  const wig=sin(u*7-t*5)*46*u*u;     // tail wiggles more
+  const by=wig;
+  const wdt=58*sin(Math.PI*Math.min(1,u*1.15))*(1-u*.55); // body width taper
+  const side=(i%2?1:-1);
+  // outline: top edge then bottom edge, tail fin at u>0.82
+  let px=bx, py=by+side*wdt;
+  if(u>.8){ const f=(u-.8)/.2; py=by+side*wdt*(1-f)+side*sin(t*5)*30*f; px=bx+f*70; }
+  // eye
+  return [CX+px, CY+py*.9];
+}
+// --- 花 flower : rhodonea rose, breathing petals ---
+function flowerPt(i,N,t){
+  const th=i/N*TAU;
+  const petals=6, breathe=1+.12*sin(t*1.5);
+  const r=(cos(petals*th*.5+t*.4)*.5+.5)*230*breathe+30;
+  const sway=sin(t+th*3)*8;
+  return [CX+(r+sway)*cos(th+t*.15), CY+(r+sway)*sin(th+t*.15)];
+}
+// --- 字母 letters : 5x5 vector font, particles on a sine sea ---
+const FONT={
+ A:[0x0E,0x11,0x1F,0x11,0x11],B:[0x1E,0x11,0x1E,0x11,0x1E],C:[0x0E,0x11,0x10,0x11,0x0E],
+ D:[0x1E,0x11,0x11,0x11,0x1E],E:[0x1F,0x10,0x1E,0x10,0x1F],F:[0x1F,0x10,0x1E,0x10,0x10],
+ G:[0x0E,0x11,0x19,0x11,0x0E],H:[0x11,0x11,0x1F,0x11,0x11],I:[0x0E,0x04,0x04,0x04,0x0E],
+ J:[0x07,0x02,0x02,0x12,0x0C],K:[0x11,0x12,0x1C,0x12,0x11],L:[0x10,0x10,0x10,0x10,0x1F],
+ M:[0x11,0x1B,0x15,0x11,0x11],N:[0x11,0x19,0x15,0x13,0x11],O:[0x0E,0x11,0x11,0x11,0x0E],
+ P:[0x1E,0x11,0x1E,0x10,0x10],Q:[0x0E,0x11,0x11,0x13,0x0D],R:[0x1E,0x11,0x1E,0x12,0x11],
+ S:[0x0F,0x10,0x0E,0x01,0x1E],T:[0x1F,0x04,0x04,0x04,0x04],U:[0x11,0x11,0x11,0x11,0x0E],
+ V:[0x11,0x11,0x11,0x0A,0x04],W:[0x11,0x11,0x15,0x1B,0x11],X:[0x11,0x0A,0x04,0x0A,0x11],
+ Y:[0x11,0x0A,0x04,0x04,0x04],Z:[0x1F,0x02,0x04,0x08,0x1F],' ':[0,0,0,0,0]
+};
+function letterPts(word,t){
+  const pts=[]; const s=34, gap=14;
+  const totalW=word.length*(5*s+gap);
+  let ox=CX-totalW/2;
+  [...word.toUpperCase()].forEach(ch=>{
+    const g=FONT[ch]||FONT[' '];
+    for(let r=0;r<5;r++)for(let c=0;c<5;c++){
+      if(g[r]>>(4-c)&1){
+        const wx=ox+c*s+sin(t*2+r*.7+c*.4)*10;
+        const wy=CY-2.5*s+r*s+cos(t*1.6+c*.6+r*.3)*10;
+        pts.push([wx,wy]);
+      }
+    }
+    ox+=5*s+gap;
+  });
+  return pts;
+}
+// ============ formulas shown under canvas ============
+const FORMULAS={
+ dragon:"dragon:  k=9·cos(x/8), e=y/8−12.5\n  d=(k²+e²)/99+sin(t)/6+.5\n  q=99−e·sin(atan2(k,e)·7)/d+k·(3+cos(d²−t)·2)\n  → (q·sin(d/2+e/69−t/16), (q+19d)·cos(…))",
+ fish:"fish:  u=i/N  (0..1 along body)\n  wiggle=sin(7u−5t)·46u²   ← tail swings\n  width=58·sin(πu)·(1−.55u)  ← tapered body",
+ flower:"flower:  rhodonea rose\n  r=(cos(3θ+t/2.5)·.5+.5)·230·(1+.12·sin(1.5t))\n  → r·(cos(θ+.15t), sin(θ+.15t))",
+ letters:"letters:  5×5 vector font as bitmasks\n  pt=(col,row) → x+sin(2t)·10, y+cos(1.6t)·10\n  pure sine sea — no images, no canvas text"
+};
+// ============ engine ============
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+let mode="dragon",playing=true,t=0,speed=12,trail=18;
+const N=9000;
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".mode").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");mode=b.dataset.mode;
+  document.getElementById("wordInput").style.display=mode==="letters"?"":"none";
+  document.getElementById("formula").innerHTML="<b>"+b.textContent.trim()+"</b>\n"+FORMULAS[mode];
+});
+document.getElementById("playBtn").onclick=()=>{playing=!playing;applyLang();};
+document.getElementById("speed").oninput=e=>speed=+e.target.value;
+document.getElementById("trail").oninput=e=>trail=+e.target.value;
+document.getElementById("formula").innerHTML="<b>🐉 "+STR[lang].dragon+"</b>\n"+FORMULAS.dragon;
+ctx.fillStyle="#0a0a0a";ctx.fillRect(0,0,W,H);
+function frame(){
+  requestAnimationFrame(frame);
+  if(!playing)return;
+  t+=speed/600;
+  ctx.fillStyle=`rgba(10,10,10,${trail/100})`;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="rgba(255,255,255,.85)";
+  const word=(document.getElementById("wordInput").value||"DRAGON").slice(0,8);
+  if(mode==="letters"){
+    for(const [x,y] of letterPts(word,t))ctx.fillRect(x,y,2.6,2.6);
+  }else{
+    const fn=mode==="dragon"?dragonPt:mode==="fish"?fishPt:flowerPt;
+    for(let i=0;i<N;i++){
+      let x,y;
+      if(mode==="dragon"){x=i%200;y=(i/200)*2.2;}
+      else{x=i;y=i;}
+      [x,y]=fn(x,mode==="dragon"?y:N,t);
+      // hue drift purely from sin — still just math
+      const h=(sin(t+i*.001)*.5+.5)*360;
+      ctx.fillStyle=`hsla(${h},80%,65%,.8)`;
+      ctx.fillRect(x,y,mode==="dragon"?2.2:2.4,mode==="dragon"?2.2:2.4);
+    }
+  }
+}
+applyTheme();applyLang();frame();
+// touch drag = stir time
+let lx=0;cv.addEventListener("pointermove",e=>{const r=cv.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width*W; t+=(x-lx)*.002; lx=x;});
+</script>
+</body>
+</html>
