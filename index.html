@@ -189,7 +189,9 @@ function frame(now){
  ctx.fillStyle=`rgba(10,10,10,${trail/100})`;ctx.fillRect(0,0,W,H);
  if(mode==="letters"){
   ctx.fillStyle="rgba(255,255,255,.9)";
-  for(const[x,y]of letterPts((document.getElementById("wordInput").value||"DRAGON").slice(0,8),t))ctx.fillRect(x,y,2.4,2.4);
+  for(const[x0,y0]of letterPts((document.getElementById("wordInput").value||"DRAGON").slice(0,8),t)){
+   const[x,y]=attract(x0,y0);ctx.fillRect(x,y,2.4,2.4);}
+  pvx*=.94;pvy*=.94;
   return;
  }
  const M=MODES.find(m=>m.id===mode);
@@ -198,15 +200,35 @@ function frame(now){
   let x,y;
   if(M.gen){[x,y]=M.pt(pts[i][0],pts[i][1],t);}
   else[x,y]=M.pt(i,N,t);
+  [x,y]=attract(x,y);
   const h=(sin(t*2+i*.0008)*.5+.5)*360;
   ctx.fillStyle=`hsla(${h},85%,66%,.85)`;
   const s=mode==="dragon"?2:2.2;
   ctx.fillRect(x,y,s,s);
  }
+ pvx*=.94;pvy*=.94;
 }
 applyTheme();applyLang();requestAnimationFrame(frame);
-let lx=0;cv.addEventListener("pointermove",e=>{const r=cv.getBoundingClientRect();
- const x=(e.clientX-r.left)/r.width*W;t+=(x-lx)*.003;lx=x;});
+// ---- pointer trajectory follow ----
+let ptx=CX,pty=CY,pvx=0,pvy=0,pSeen=false,lx=null;
+function updatePtr(e){
+ const r=cv.getBoundingClientRect();
+ const x=(e.clientX-r.left)/r.width*W, y=(e.clientY-r.top)/r.height*H;
+ if(pSeen){pvx=pvx*.65+(x-ptx)*.35; pvy=pvy*.65+(y-pty)*.35;}
+ ptx=x;pty=y;pSeen=true;
+ if(lx!==null)t+=(x-lx)*.002; lx=x;
+}
+cv.addEventListener("pointerdown",e=>{updatePtr(e);cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);});
+cv.addEventListener("pointermove",updatePtr);
+window.addEventListener("pointerup",()=>{lx=null;});
+// 每粒粒子受 pointer 牽引：跟住手指軌跡
+function attract(x,y){
+ if(!pSeen)return[x,y];
+ const R=150,dx=ptx-x,dy=pty-y,d2=dx*dx+dy*dy;
+ if(d2>R*R)return[x,y];
+ const d=Math.sqrt(d2)||1,f=1-d/R;
+ return[x+dx/d*f*70+pvx*f*4, y+dy/d*f*70+pvy*f*4];
+}
 </script>
 </body>
 </html>
