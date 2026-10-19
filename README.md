@@ -20,6 +20,8 @@ Pure mathematical formula animation. No images, no sprites, no libraries — onl
 | 🪶 **Feather** | Shaft sway + barbs `sin(uπ)·80` |
 | 🐚 **Shell** | Archimedean spiral `r=12θ` with chamber ripple |
 | 🐦 **Bird** | Flapping wings `flap=sin(4t)·60` |
+| 🔮 **Formula A** | `k=(4+sin(2y−t)·3)·cos(x/29)`, `q=3sin(2k)+.3/k+…` |
+| 🌪️ **Formula B** | `k=(y<7?8+sin(y^9)·6:4+cos(y))·cos(i+t/2)` |
 
 ## Controls
 
