@@ -48,7 +48,7 @@ footer a{color:inherit}
     </div>
   </header>
   <h1 class="display" data-i18n="title">Dragon Mo</h1>
-  <p class="sub" data-i18n="sub">14 種純數學公式動畫 — 只用 sin 同 cos</p>
+  <p class="sub" data-i18n="sub">16 種純數學公式動畫 — 只用 sin 同 cos</p>
   <div class="modes" id="modes"></div>
   <div class="stage"><canvas id="cv" width="800" height="520"></canvas></div>
   <div class="formula" id="formula"></div>
@@ -68,9 +68,9 @@ footer a{color:inherit}
 <script>
 "use strict";
 const STR={
- en:{title:"Dragon Mo",sub:"14 pure math-formula animations — only sin & cos",
+ en:{title:"Dragon Mo",sub:"16 pure math-formula animations — only sin & cos",
   pause:"Pause",play:"Play",speed:"Speed",trail:"Trail"},
- zh:{title:"Dragon Mo",sub:"14 種純數學公式動畫 — 只用 sin 同 cos",
+ zh:{title:"Dragon Mo",sub:"16 種純數學公式動畫 — 只用 sin 同 cos",
   pause:"暫停",play:"播放",speed:"速度",trail:"殘影"}
 };
 let lang=localStorage.getItem("dragonmo-lang")||"en";
@@ -142,6 +142,16 @@ const MODES=[
  {id:"bird",icon:"🐦",en:"Bird",zh:"飛鳥",f:"flap=sin(4t)·60, wings=side·v·150\nwy=|sin(2πv)|·flap·(1−.3v)",
   pt:(i,N,t)=>{const u=i/N,s=u<.5?-1:1,v=u<.5?u*2:(u-.5)*2,flap=sin(t*4)*60;
    return[CX+s*v*150,CY+Math.abs(sin(v*Math.PI*2))*flap*(1-v*.3)-v*20-40+sin(t*2)*10];}},
+ //15 公式 A (user source)
+ {id:"formulaA",icon:"🔮",en:"Formula A",zh:"公式 A",f:"k=(4+sin(2y−t)·3)·cos(x/29), e=y/8−13\nd=hypot(k,e), c=d−t\nq=3sin(2k)+.3/k+sin(y/25)·k·(9+4sin(9e−3d+2t))",
+  pt:(i,N,t)=>{const x=i,y=i/235,k=(4+sin(y*2-t)*3)*cos(x/29),e=y/8-13,
+   d=Math.hypot(k,e),c=d-t,q=3*sin(k*2)+.3/k+sin(y/25)*k*(9+4*sin(e*9-d*3+t*2));
+   return[CX+(q+30*cos(c))*1.2,CY+(q*sin(c)+d*39-220)*1.2];}},
+ //16 公式 B (user source)
+ {id:"formulaB",icon:"🌪️",en:"Formula B",zh:"公式 B",f:"k=(y<7?8+sin(y^9)·6:4+cos(y))·cos(i+t/2)\nd=hypot(k,e), c=d/4−t/2+(i%2)·3\nq=yk/5·(2+sin(2d+y−4t))+80",
+  pt:(i,N,t)=>{const y=i/790,k=(y<7?8+sin(y^9)*6:4+cos(y))*cos(i+t/2),e=y/2-13,
+   d=Math.hypot(k,e),c=d/4-t/2+(i%2)*3,q=y*k/5*(2+sin(d*2+y-t*4))+80;
+   return[CX+(q*cos(c)*cos(c/2+e/8))*1.6,CY+(q*d/8*sin(c))*1.6];}},
 ];
 const FONT={A:[0x0E,0x11,0x1F,0x11,0x11],B:[0x1E,0x11,0x1E,0x11,0x1E],C:[0x0E,0x11,0x10,0x11,0x0E],D:[0x1E,0x11,0x11,0x11,0x1E],E:[0x1F,0x10,0x1E,0x10,0x1F],F:[0x1F,0x10,0x1E,0x10,0x10],G:[0x0E,0x11,0x19,0x11,0x0E],H:[0x11,0x11,0x1F,0x11,0x11],I:[0x0E,0x04,0x04,0x04,0x0E],J:[0x07,0x02,0x02,0x12,0x0C],K:[0x11,0x12,0x1C,0x12,0x11],L:[0x10,0x10,0x10,0x10,0x1F],M:[0x11,0x1B,0x15,0x11,0x11],N:[0x11,0x19,0x15,0x13,0x11],O:[0x0E,0x11,0x11,0x11,0x0E],P:[0x1E,0x11,0x1E,0x10,0x10],Q:[0x0E,0x11,0x11,0x13,0x0D],R:[0x1E,0x11,0x1E,0x12,0x11],S:[0x0F,0x10,0x0E,0x01,0x1E],T:[0x1F,0x04,0x04,0x04,0x04],U:[0x11,0x11,0x11,0x11,0x0E],V:[0x11,0x11,0x11,0x0A,0x04],W:[0x11,0x11,0x15,0x1B,0x11],X:[0x11,0x0A,0x04,0x0A,0x11],Y:[0x11,0x0A,0x04,0x04,0x04],Z:[0x1F,0x02,0x04,0x08,0x1F],' ':[0,0,0,0,0]};
 function letterPts(word,t){const pts=[],s=30,gap=12,tw=word.length*(5*s+gap);let ox=CX-tw/2;
