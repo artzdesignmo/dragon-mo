@@ -77,6 +77,7 @@ body.menuopen #panel{display:block}
   <div class="prow"><span class="lbl" data-i18n="trail">殘影</span><input type="range" id="trail" min="2" max="60" value="14"></div>
   <div class="prow"><span class="lbl" data-i18n="drift">移動</span><input type="range" id="drift" min="0" max="100" value="0"></div>
   <div class="prow"><input type="text" id="wordInput" maxlength="8" value="DRAGON" placeholder="Type word…" style="display:none"></div>
+  <div class="prow"><input type="text" id="wordInputS" maxlength="8" value="HELLO" placeholder="Letters-S text…" style="display:none"></div>
   <div class="prow">
     <button class="cbtn" id="bgBtn">● <span data-i18n="bg">底色</span></button>
     <button class="cbtn" id="langBtn">EN</button>
@@ -128,6 +129,7 @@ const MODES=[
   pt:(i,N,t)=>{const th=i/N*TAU,b=1+.12*sin(t*1.5),r=(cos(3*th+t*.4)*.5+.5)*230*b+30,s=sin(t+th*3)*8;
    return[CX+(r+s)*cos(th+t*.15)*SC,CY+(r+s)*sin(th+t*.15)*SC];}},
  {id:"letters",icon:"🔤",en:"Letters",zh:"字母",f:"5×5 vector font bitmasks\npt → x+sin(2t)·10, y+cos(1.6t)·10",pt:null},
+ {id:"lettersS",icon:"🔡",en:"Letters-S",zh:"字母-S",f:"5×5 vector font — custom text\npt → x+sin(2t)·10, y+cos(1.6t)·10",pt:null},
  {id:"butterfly",icon:"🦋",en:"Butterfly",zh:"蝴蝶",f:"wings: flap=sin(3t)·.4+.6\nwx=side·v·160·flap",
   pt:(i,N,t)=>{const u=i/N,s=u<.5?-1:1,v=u<.5?u*2:(u-.5)*2,flap=sin(t*3)*.4+.6;
    return[CX+s*v*160*flap*SC,CY+(sin(v*Math.PI)*100*(.5+.5*sin(t*3+v*3))-v*30-20)*SC];}},
@@ -181,6 +183,8 @@ MODES.forEach(m=>{const b=document.createElement("button");b.className="pmode"+(
  b.dataset.mode=m.id;b.innerHTML=m.icon+" "+(lang==="en"?m.en:m.zh);
  b.onclick=()=>{document.querySelectorAll(".pmode").forEach(x=>x.classList.remove("active"));b.classList.add("active");
   mode=m.id;document.getElementById("wordInput").style.display=mode==="letters"?"":"none";
+  document.getElementById("wordInputS").style.display=mode==="lettersS"?"":"none";
+  hist=[];histIdx=0;
   formulaEl.innerHTML="<b>"+m.icon+" "+(lang==="en"?m.en:m.zh)+"</b>\n"+m.f;};
  modesEl.appendChild(b);});
 function refreshModeLabels(){document.querySelectorAll(".pmode").forEach(b=>{const m=MODES.find(x=>x.id===b.dataset.mode);
@@ -224,41 +228,67 @@ function attract(x,y){
  }
  return[nx,ny];
 }
+// 歷史軌跡：每幀全清，殘影由粒子歷史位置線段構成，數學上保證零殘留
+const HIST=4;
+let hist=[],histIdx=0,histCount=0;
+function getPositions(){
+ let cnt,fn;
+ if(mode==="letters"||mode==="lettersS"){
+  const wmode=mode==="lettersS"?"S":"";
+  const word=(document.getElementById(wmode?"wordInputS":"wordInput").value||(wmode?"HELLO":"DRAGON")).slice(0,8);
+  const pts=letterPts(word,t);
+  cnt=pts.length;
+  fn=k=>{const[x0,y0]=pts[k];return attract(x0,y0);};
+ }else{
+  const M=MODES.find(m=>m.id===mode);
+  const gen=M.gen?M.gen(N,t):null;
+  cnt=N;
+  fn=k=>{
+   let x,y;
+   if(gen){[x,y]=M.pt(gen[k][0],gen[k][1],t);}
+   else[x,y]=M.pt(k,N,t);
+   return attract(x,y);
+  };
+ }
+ const arr=new Float32Array(cnt*2);
+ for(let k=0;k<cnt;k++){const[x,y]=fn(k);arr[k*2]=x+doxG;arr[k*2+1]=y+doyG;}
+ return{arr,cnt};
+}
+let doxG=0,doyG=0;
 function frame(now){
  requestAnimationFrame(frame);
  const dt=Math.min(.05,(now-lastT)/1000||.016);lastT=now;
  if(!playing)return;
  t+=dt*speed*.55;
- // 自動移動：drift 0=唔郁，越大越快隨機漂
- const dox=drift>0?(sin(t*.23)+sin(t*.11+1.7)*.6)*drift*2.2:0;
- const doy=drift>0?(cos(t*.19+.5)+sin(t*.07+3.1)*.6)*drift*2.2:0;
- // 1. trail canvas 衰減（destination-out → 透明，無 8-bit 殘留）
- tctx.globalCompositeOperation="destination-out";
- tctx.fillStyle=`rgba(0,0,0,${trail/100})`;
- tctx.fillRect(0,0,W,H);
- tctx.globalCompositeOperation="source-over";
- // 2. 新粒子畫入 trail canvas（全統一 letters 顆粒）
- const gs=2.4*SC, pc=BGS[bgI][2];
- tctx.fillStyle=`rgba(${pc},.92)`;
- if(mode==="letters"){
-  for(const[x0,y0]of letterPts((document.getElementById("wordInput").value||"DRAGON").slice(0,8),t)){
-   const[x,y]=attract(x0,y0);tctx.fillRect(x+dox,y+doy,gs,gs);}
- }else{
-  const M=MODES.find(m=>m.id===mode);
-  const pts=M.gen?M.gen(N,t):null;
-  for(let i=0;i<N;i++){
-   let x,y;
-   if(M.gen){[x,y]=M.pt(pts[i][0],pts[i][1],t);}
-   else[x,y]=M.pt(i,N,t);
-   [x,y]=attract(x,y);
-   tctx.fillRect(x+dox,y+doy,gs,gs);
-  }
- }
- pvx*=.94;pvy*=.94;
- // 3. 合成：實色底 + trail（背景永遠乾淨）
+ // 自動移動
+ doxG=drift>0?(sin(t*.23)+sin(t*.11+1.7)*.6)*drift*2.2:0;
+ doyG=drift>0?(cos(t*.19+.5)+sin(t*.07+3.1)*.6)*drift*2.2:0;
+ // 全清（保證零殘留）
  ctx.fillStyle=BGS[bgI][1];
  ctx.fillRect(0,0,W,H);
- ctx.drawImage(tc,0,0);
+ const gs=2.4*SC,pc=BGS[bgI][2];
+ const{arr,cnt}=getPositions();
+ // 殘影：歷史軌跡線段（由舊到新，alpha 遞增）
+ const tScale=trail/60; // 0.03~1
+ const segA=[0.10*tScale+0.03,0.22*tScale+0.05,0.40*tScale+0.08];
+ ctx.lineCap="round";ctx.lineWidth=gs;
+ for(let s=HIST-1;s>=1;s--){
+  const a=hist[(histIdx+s)%HIST],b=hist[(histIdx+s-1)%HIST];
+  if(!a||!b||a.length!==arr.length)continue;
+  ctx.strokeStyle=`rgba(${pc},${segA[HIST-1-s]})`;
+  ctx.beginPath();
+  for(let k=0;k<cnt;k++){
+   ctx.moveTo(a[k*2],a[k*2+1]);
+   ctx.lineTo(b[k*2],b[k*2+1]);
+  }
+  ctx.stroke();
+ }
+ // 頭：實色顆粒（letters 式）
+ ctx.fillStyle=`rgba(${pc},.92)`;
+ for(let k=0;k<cnt;k++)ctx.fillRect(arr[k*2],arr[k*2+1],gs,gs);
+ hist[histIdx]=arr;histIdx=(histIdx+1)%HIST;histCount++;
+ // 切 mode / 改字時清歷史，唔好拉線
+ pvx*=.94;pvy*=.94;
 }
 applyLang();requestAnimationFrame(frame);
 </script>
