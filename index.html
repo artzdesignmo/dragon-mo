@@ -9,31 +9,38 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#0a0a0a}
-body{font-family:Geist,"Noto Sans TC",system-ui,sans-serif;color:#f5f5f5}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:Geist,"Noto Sans TC",system-ui,sans-serif;transition:background .3s}
+body[data-bg="black"]{background:#0a0a0a;color:var(--ui-fg)}
+body[data-bg="gray"]{background:#e6e6e6;color:#111}
+body[data-bg="white"]{background:#ffffff;color:#111}
+:root{}
+body[data-bg="black"]{--ui-brd:rgba(255,255,255,.25);--ui-bg:rgba(10,10,10,.45);--ui-fg:#f5f5f5;--ui-dim:rgba(245,245,245,.6)}
+body[data-bg="gray"]{--ui-brd:rgba(0,0,0,.2);--ui-bg:rgba(255,255,255,.55);--ui-fg:#111;--ui-dim:rgba(0,0,0,.55)}
+body[data-bg="white"]{--ui-brd:rgba(0,0,0,.2);--ui-bg:rgba(255,255,255,.6);--ui-fg:#111;--ui-dim:rgba(0,0,0,.55)}
 .display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif}
 #cv{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none;cursor:crosshair}
-.ui{position:fixed;z-index:10;color:#f5f5f5}
+.ui{position:fixed;z-index:10;color:var(--ui-fg)}
 #topbar{top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:18px 22px;pointer-events:none}
 #topbar>*{pointer-events:auto}
 #topbar .display{font-size:15px;letter-spacing:.06em;opacity:.9}
 .topbtns{display:flex;gap:8px}
-.tbtn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(10,10,10,.45);backdrop-filter:blur(8px);color:#f5f5f5;cursor:pointer;font-size:13px;font-weight:600}
+.tbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--ui-brd);background:var(--ui-bg);backdrop-filter:blur(8px);color:var(--ui-fg);cursor:pointer;font-size:13px;font-weight:600}
 .tbtn:hover{border-color:#fff}
 #title{top:64px;left:22px;pointer-events:none}
 #title h1{font-size:clamp(26px,4.5vw,44px);margin:0;letter-spacing:.02em;text-shadow:0 2px 20px rgba(0,0,0,.6)}
-#title p{margin:6px 0 0;font-size:13px;color:rgba(245,245,245,.65)}
+#title p{margin:6px 0 0;font-size:13px;color:var(--ui-dim)}
 #modes{bottom:86px;left:0;right:0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 16px;max-height:32vh;overflow-y:auto}
-.mode{padding:9px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(10,10,10,.45);backdrop-filter:blur(8px);color:#f5f5f5;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;white-space:nowrap}
-.mode.active{background:#f5f5f5;color:#0a0a0a;border-color:#f5f5f5}
+.mode{padding:9px 18px;border-radius:999px;border:1px solid var(--ui-brd);background:var(--ui-bg);backdrop-filter:blur(8px);color:var(--ui-fg);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;white-space:nowrap}
+.mode.active{background:#f5f5f5;color:#0a0a0a;border-color:var(--ui-fg)}
 #controls{bottom:0;left:0;right:0;display:flex;gap:12px;align-items:center;justify-content:center;padding:16px;flex-wrap:wrap}
-.cbtn{padding:9px 20px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(10,10,10,.45);backdrop-filter:blur(8px);color:#f5f5f5;cursor:pointer;font-size:13px;font-weight:600}
-input[type=text]{padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(10,10,10,.45);backdrop-filter:blur(8px);color:#f5f5f5;font-size:13px;width:160px;outline:none}
-input[type=range]{accent-color:#f5f5f5;width:110px}
-.lbl{font-size:12px;color:rgba(245,245,245,.6)}
-#formula{top:64px;right:22px;max-width:280px;padding:12px 16px;border:1px dashed rgba(255,255,255,.25);border-radius:12px;background:rgba(10,10,10,.45);backdrop-filter:blur(8px);font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;color:rgba(245,245,245,.6);white-space:pre-wrap;word-break:break-all;pointer-events:none}
-#formula b{color:#f5f5f5}
-#hideUI{position:fixed;z-index:11;bottom:16px;right:16px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(10,10,10,.45);backdrop-filter:blur(8px);color:#f5f5f5;cursor:pointer;font-size:15px}
+.cbtn{padding:9px 20px;border-radius:999px;border:1px solid var(--ui-brd);background:var(--ui-bg);backdrop-filter:blur(8px);color:var(--ui-fg);cursor:pointer;font-size:13px;font-weight:600}
+input[type=text]{padding:9px 16px;border-radius:999px;border:1px solid var(--ui-brd);background:var(--ui-bg);backdrop-filter:blur(8px);color:var(--ui-fg);font-size:13px;width:160px;outline:none}
+input[type=range]{accent-color:var(--ui-fg);width:110px}
+.lbl{font-size:12px;color:var(--ui-dim)}
+#formula{top:64px;right:22px;max-width:280px;padding:12px 16px;border:1px dashed var(--ui-brd);border-radius:12px;background:var(--ui-bg);backdrop-filter:blur(8px);font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;color:var(--ui-dim);white-space:pre-wrap;word-break:break-all;pointer-events:none}
+#formula b{color:var(--ui-fg)}
+#hideUI{position:fixed;z-index:11;bottom:16px;right:16px;width:38px;height:38px;border-radius:50%;border:1px solid var(--ui-brd);background:var(--ui-bg);backdrop-filter:blur(8px);color:var(--ui-fg);cursor:pointer;font-size:15px}
 body.hideui .ui,body.hideui #hideUI span.h{display:none}
 @media(max-width:700px){
  #formula{display:none}
@@ -43,11 +50,11 @@ body.hideui .ui,body.hideui #hideUI span.h{display:none}
 }
 </style>
 </head>
-<body>
+<body data-bg="black">
 <canvas id="cv"></canvas>
 <div class="ui" id="topbar">
   <div class="display">OPENX · DRAGON MO</div>
-  <div class="topbtns"><button class="tbtn" id="langBtn">EN</button></div>
+  <div class="topbtns"><button class="tbtn" id="bgBtn" title="底色">●</button><button class="tbtn" id="langBtn">EN</button></div>
 </div>
 <div class="ui" id="title">
   <h1 class="display" data-i18n="title">Dragon Mo</h1>
@@ -57,9 +64,8 @@ body.hideui .ui,body.hideui #hideUI span.h{display:none}
 <div class="ui" id="modes"></div>
 <div class="ui" id="controls">
   <button class="cbtn" id="playBtn">⏸ <span data-i18n="pause">暫停</span></button>
-  <span class="lbl" data-i18n="speed">速度</span><input type="range" id="speed" min="1" max="60" value="22">
-  <span class="lbl" data-i18n="trail">殘影</span><input type="range" id="trail" min="2" max="60" value="14">
-  <input type="text" id="wordInput" maxlength="8" value="DRAGON" placeholder="Type word…" style="display:none">
+  <span class="lbl" data-i18n="speed">速度</span><input type="range" id="speed" min="1" max="30" value="8">
+    <input type="text" id="wordInput" maxlength="8" value="DRAGON" placeholder="Type word…" style="display:none">
 </div>
 <button id="hideUI" title="隱藏 UI"><span class="h">👁</span><span style="display:none" class="s">👁‍🗨</span></button>
 <script>
@@ -75,6 +81,10 @@ function applyLang(){document.querySelectorAll("[data-i18n]").forEach(el=>{const
  refreshModeLabels();
  const m=MODES.find(x=>x.id===mode);if(m)formulaEl.innerHTML="<b>"+m.icon+" "+(lang==="en"?m.en:m.zh)+"</b>\n"+m.f;}
 document.getElementById("langBtn").onclick=()=>{lang=lang==="en"?"zh":"en";localStorage.setItem("dragonmo-lang",lang);applyLang();};
+const BGS=[["black","#0a0a0a","255,255,255"],["gray","#e6e6e6","20,20,20"],["white","#ffffff","20,20,20"]];
+let bgI=+(localStorage.getItem("dragonmo-bg")||0);
+function applyBg(){document.body.dataset.bg=BGS[bgI][0];ctx.fillStyle=BGS[bgI][1];ctx.fillRect(0,0,W,H);}
+document.getElementById("bgBtn").onclick=()=>{bgI=(bgI+1)%3;localStorage.setItem("dragonmo-bg",bgI);applyBg();};
 document.getElementById("hideUI").onclick=()=>document.body.classList.toggle("hideui");
 // ================= math core — only sin & cos =================
 const TAU=Math.PI*2,sin=Math.sin,cos=Math.cos;
@@ -84,7 +94,7 @@ function resize(){
  W=window.innerWidth;H=window.innerHeight;CX=W/2;CY=H/2;
  SC=Math.min(W/800,H/520);
  cv.width=W;cv.height=H;
- ctx.fillStyle="#0a0a0a";ctx.fillRect(0,0,W,H);
+ applyBg();
 }
 window.addEventListener("resize",resize);
 const MODES=[
@@ -148,7 +158,7 @@ function letterPts(word,t){const pts=[],s=30*SC,gap=12*SC,tw=word.length*(5*s+ga
   ox+=5*s+gap;});return pts;}
 // ================= engine =================
 const modesEl=document.getElementById("modes"),formulaEl=document.getElementById("formula");
-let mode="dragon",playing=true,t=0,speed=22,trail=14;
+let mode="dragon",playing=true,t=0,speed=8;
 const N=20000;
 MODES.forEach(m=>{const b=document.createElement("button");b.className="mode"+(m.id===mode?" active":"");
  b.dataset.mode=m.id;b.innerHTML=m.icon+" <span>"+(lang==="en"?m.en:m.zh)+"</span>";
@@ -160,9 +170,8 @@ function refreshModeLabels(){document.querySelectorAll(".mode").forEach(b=>{cons
  b.querySelector("span").textContent=lang==="en"?m.en:m.zh;});}
 document.getElementById("playBtn").onclick=()=>{playing=!playing;applyLang();};
 document.getElementById("speed").oninput=e=>speed=+e.target.value;
-document.getElementById("trail").oninput=e=>trail=+e.target.value;
 formulaEl.innerHTML="<b>🐉 Dragon</b>\n"+MODES[0].f;
-resize();
+resize();applyBg();
 let lastT=0;
 // ---- pointer trajectory follow ----
 let ptx=CX,pty=CY,pvx=0,pvy=0,pSeen=false,lx=null;
@@ -201,11 +210,10 @@ function frame(now){
  const dt=Math.min(.05,(now-lastT)/1000||.016);lastT=now;
  if(!playing)return;
  t+=dt*speed*.55;
- ctx.fillStyle=`rgba(10,10,10,${trail/100})`;ctx.fillRect(0,0,W,H);
- // monochrome grain — like letters mode
- const gs=2.2*SC;
+ ctx.fillStyle=BGS[bgI][1];ctx.fillRect(0,0,W,H); // 實色清屏，無殘影
+ const gs=2.4*SC, pc=BGS[bgI][2];
+ ctx.fillStyle=`rgba(${pc},.92)`; // 全統一 letters 顆粒
  if(mode==="letters"){
-  ctx.fillStyle="rgba(255,255,255,.92)";
   for(const[x0,y0]of letterPts((document.getElementById("wordInput").value||"DRAGON").slice(0,8),t)){
    const[x,y]=attract(x0,y0);ctx.fillRect(x,y,gs,gs);}
   pvx*=.94;pvy*=.94;return;
@@ -217,9 +225,6 @@ function frame(now){
   if(M.gen){[x,y]=M.pt(pts[i][0],pts[i][1],t);}
   else[x,y]=M.pt(i,N,t);
   [x,y]=attract(x,y);
-  // brightness rhythm — pure sine, no color
-  const br=.45+.55*(sin(t*2+i*.0008)*.5+.5);
-  ctx.fillStyle=`rgba(255,255,255,${br*.9})`;
   ctx.fillRect(x,y,gs,gs);
  }
  pvx*=.94;pvy*=.94;
